@@ -1,0 +1,7 @@
+[package]
+name = "voicetime"
+version = "0.1.0"
+authors = ["Henrik Lundberg <henrik.lundberg@zenon.se>"]
+
+[dependencies]
+argparse = "*"
