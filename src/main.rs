@@ -1,6 +1,7 @@
 extern crate argparse;
+extern crate voicetime;
 
-use std::net::{UdpSocket};
+use voicetime::connection::Connection;
 
 fn main() {
     let mut address = "".to_string();
@@ -13,32 +14,21 @@ fn main() {
     }
 
     if address.len() > 0 {
-        let socket = match UdpSocket::bind("0.0.0.0:5513") {
-            Ok(s) => s,
-            Err(e) => panic!("couldn't bind socket: {}", e)
-        };
-
-        let buf = [0; 5];
-        match socket.send_to(&buf, "0.0.0.0:5514") {
-            Ok(size) => println!("Wrote {} bytes", size),
-            Err(e) => panic!("unable to send: {}", e)
-        };
+        let connection = Connection::new();
+        let address = &address[..];
+        connection.send_to("tjena".as_bytes(), address);
     } else {
-        let socket = match UdpSocket::bind("0.0.0.0:5514") {
-            Ok(s) => s,
-            Err(e) => panic!("couldn't bind socket: {}", e)
-        };
+        let connection = Connection::new();
+        let local_addr = connection.addr();
+
+        println!("Starting session: {}", local_addr);
 
         loop {
-            // read from the socket
             let mut buf = [0; 10];
-            match socket.recv_from(&mut buf) {
-                Ok((amt, src)) => {
-                    println!("amt: {}", amt);
-                    println!("src: {}", src);
-                },
-                Err(e) => panic!("unable to receive: {}", e)
-            };
+            let (length, addr) = connection.recv_from(&mut buf);
+            let bytes_to_string = std::str::from_utf8(&buf[..length]).unwrap();
+
+            println!("{} -> {}", addr, bytes_to_string);
         }
     }
 }

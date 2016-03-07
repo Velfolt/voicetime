@@ -5,3 +5,4 @@ authors = ["Henrik Lundberg <henrik.lundberg@zenon.se>"]
 
 [dependencies]
 argparse = "*"
+rand = "*"
