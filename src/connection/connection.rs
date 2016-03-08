@@ -55,23 +55,19 @@ mod tests {
         let listener = Connection::new();
         let addr = listener.addr();
 
-        let child = thread::spawn(move || {
+        let thread = thread::spawn(move || {
             let mut buf = [0; 10];
-            let (l, _) = listener.recv_from(&mut buf);
+            let (length, _) = listener.recv_from(&mut buf);
 
-            (l, buf)
+            (length, buf)
         });
 
         let connection = Connection::new();
         let buf = "hejsan".as_bytes();
         assert_eq!(6, connection.send_to(&buf, &addr));
 
-        // some work here
-        let (length, received) = match child.join() {
-            Ok(a) => a,
-            Err(_e) => panic!()
-        };
-
+        let (length, received) = thread.join().unwrap();
+        assert_eq!(6, length);
         let bytes_to_string = str::from_utf8(&received[..length]).unwrap();
         assert_eq!("hejsan", bytes_to_string);
     }
