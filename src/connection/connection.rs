@@ -1,5 +1,6 @@
 extern crate rand;
 
+use std::time::Duration;
 use std::net::UdpSocket;
 use std::net::ToSocketAddrs;
 use std::net::SocketAddr;
@@ -15,11 +16,15 @@ pub struct Connection {
 }
 
 impl Connection {
-    pub fn new() -> Connection {
-        let port = random_port();
+    pub fn bind(port: u16) -> Connection {
         let socket = UdpSocket::bind(("0.0.0.0", port)).unwrap();
+        //socket.set_read_timeout(Some(Duration::from_millis(1000)));
 
         Connection { socket: socket }
+    }
+
+    pub fn bind_to_random_port() -> Connection {
+        Connection::bind(random_port())
     }
 
     pub fn send_to<T: ToSocketAddrs>(&self, buf: &[u8], addr: T) -> usize {
@@ -52,7 +57,7 @@ mod tests {
 
     #[test]
     fn receive_from_another_socket() {
-        let listener = Connection::new();
+        let listener = Connection::bind_to_random_port();
         let addr = listener.addr();
 
         let thread = thread::spawn(move || {
@@ -62,7 +67,7 @@ mod tests {
             (length, buf)
         });
 
-        let connection = Connection::new();
+        let connection = Connection::bind_to_random_port();
         let buf = "hejsan".as_bytes();
         assert_eq!(6, connection.send_to(&buf, &addr));
 
@@ -70,5 +75,13 @@ mod tests {
         assert_eq!(6, length);
         let bytes_to_string = str::from_utf8(&received[..length]).unwrap();
         assert_eq!("hejsan", bytes_to_string);
+    }
+
+    #[test]
+    fn use_given_port() {
+        let listener = Connection::bind(1234);
+        let addr = listener.addr();
+
+        assert_eq!(1234, addr.port());
     }
 }
