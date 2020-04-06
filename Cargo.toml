@@ -1,13 +1,19 @@
 [package]
 name = "voicetime"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Henrik Lundberg <henrik.lundberg@zenon.se>"]
 
 [dependencies]
 argparse = "*"
 rand = "*"
 openal = { git = "https://github.com/Velfolt/rust-openal.git" }
-bincode = "*"
-rustc-serialize = "*"
 chan = "*"
+serde = "1.0"
+serde_derive = "1.0"
+bincode = "0.8"
 chan-signal = "*"
+bytes = "0.4"
+futures = "*"
+futures-cpupool = "*"
+tokio = "*"
+tokio-io = "*"
